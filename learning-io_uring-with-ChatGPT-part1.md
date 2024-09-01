@@ -844,6 +844,46 @@ io_uring_read_full_file (0:01.27) > fread_test (0:01.69) > read_file (0:03.29)
 	Exit status: 0
 ```
 
+### Q: In your fread example, you called fseek twice. Why?
+
+ChatGPT:
+
+In the `fread()` example, I used `fseek()` twice to determine the size of the file and then to reset the file pointer back to the beginning. Here's the reasoning:
+
+#### Steps Explained:
+
+1. **Determine File Size**:
+   - **First `fseek()` Call**: `fseek(file, 0, SEEK_END);`
+     - This call moves the file pointer to the end of the file. By doing this, you can then use `ftell()` to get the current position of the file pointer, which corresponds to the size of the file (in bytes).
+   - **Get File Size**: `file_size = ftell(file);`
+     - `ftell(file)` returns the current position of the file pointer, which is the total size of the file after the `fseek()` call.
+
+2. **Reset File Pointer**:
+   - **Second `fseek()` Call**: `fseek(file, 0, SEEK_SET);`
+     - After determining the file size, you need to reset the file pointer back to the beginning of the file to start reading from the start. `fseek(file, 0, SEEK_SET);` moves the file pointer to the start of the file (offset 0).
+   
+#### Why Two `fseek()` Calls?
+
+- **First `fseek()`**: To calculate the size of the file by moving the file pointer to the end and using `ftell()`.
+- **Second `fseek()`**: To move the file pointer back to the beginning so you can start reading the file from the start.
+
+#### Example Code Recap:
+
+Here’s the relevant part of the code:
+
+```c
+// Get the file size
+fseek(file, 0, SEEK_END);    // Move to end of file
+file_size = ftell(file);     // Get the current position, which is the file size
+fseek(file, 0, SEEK_SET);    // Move back to the beginning of the file
+```
+
+#### Summary:
+
+- The first `fseek()` helps in determining the file size.
+- The second `fseek()` is necessary to reset the file pointer to the beginning, allowing you to start reading the file content from the start.
+
+This sequence ensures that you correctly read the entire file, starting from the beginning.
 
 ------------
 
